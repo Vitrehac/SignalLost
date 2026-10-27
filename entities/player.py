@@ -43,22 +43,19 @@ class Player:
         return direction
        
 
-    def update(self, dt, screen):
+    def update(self, dt, collision_system):
 
-        # Handle player input and update position
+        # Handle player input and get the direction vector
         direction = self.handle_input()
 
-        # Update player position based on input and delta time
-        self.x += direction.x * self.speed * dt
-        self.y += direction.y * self.speed * dt
+        dx = direction.x * self.speed * dt
+        dy = direction.y * self.speed * dt
 
-        self.rect.x = round(self.x)
-        self.rect.y = round(self.y)
-        self.rect.clamp_ip(screen.get_rect())
-
-        self.x = self.rect.x
-        self.y = self.rect.y
+        # Move the player using the collision system
+        collision_system.move(self, dx, dy)
 
 
     def draw(self, screen, camera):
+
+        # Draw the player as a red rectangle on the screen that's adjusted for the camera's offset
         pygame.draw.rect(screen, (255, 0, 0), camera.apply(self))
