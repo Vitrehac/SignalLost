@@ -60,5 +60,5 @@ class Player:
         self.y = self.rect.y
 
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (255, 0, 0), self.rect)
+    def draw(self, screen, camera):
+        pygame.draw.rect(screen, (255, 0, 0), camera.apply(self))
