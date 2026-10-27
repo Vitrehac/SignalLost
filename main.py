@@ -1,10 +1,11 @@
 import pygame
+from levels.level import Level
 from entities.player import Player
 from systems.camera import Camera
 from systems.collision import CollisionSystem
-
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, WORLD_WIDTH, WORLD_HEIGHT
 
+# Initialize Pygame
 pygame.init()
 
 # Create game window
@@ -21,13 +22,8 @@ player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, WORLD_WIDTH, WORLD_HEIGHT)
 
 # Create obstacles for collision detection
-obstacles = [
-    pygame.Rect(400, 200, 300, 40),
-    pygame.Rect(400, 240, 40, 200),
-    pygame.Rect(700, 400, 300, 40)
-]
-
-collision_system = CollisionSystem(obstacles)
+level = Level(WORLD_WIDTH, WORLD_HEIGHT)
+collision_system = CollisionSystem(level.obstacles)
 
 
 def draw_world(screen, camera):
@@ -44,6 +40,7 @@ def draw_world(screen, camera):
                 type("Entity", (), {"rect": world_rect})
             )
 
+            # Draw the tile as a dark rectangle with a border
             pygame.draw.rect(screen, (25, 25, 32), screen_rect)
             pygame.draw.rect(screen, (35, 35, 42), screen_rect, 1)
 
@@ -73,15 +70,10 @@ while running:
     player.draw(screen, camera)
 
     # Draw obstacles
-    for obstacle in obstacles:
-        screen_rect = obstacle.move(-camera.offset.x, -camera.offset.y)
-        pygame.draw.rect(screen, (100, 100, 110), screen_rect)
+    level.draw(screen, camera)
 
     # Update the display
     pygame.display.flip()
-
-    # Limit FPS
-    clock.tick(FPS)
 
 # Quit Pygame
 pygame.quit()
