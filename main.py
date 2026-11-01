@@ -1,5 +1,5 @@
 import pygame
-from levels.level import Level
+from levels.tilemap import TileMap
 from entities.player import Player
 from systems.camera import Camera
 from systems.collision import CollisionSystem
@@ -15,34 +15,26 @@ pygame.display.set_caption(TITLE)
 # Clock to control the frame rate
 clock = pygame.time.Clock()
 
+# Create a tilemap
+tilemap = TileMap()
+
 # Create a player
-player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+player = Player(150, 150)
+
+# Get the actual world dimensions based on the tilemap
+map_width = len(tilemap.room[0]) * tilemap.tile_size
+map_height = len(tilemap.room) * tilemap.tile_size
 
 # Create a camera
-camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT, WORLD_WIDTH, WORLD_HEIGHT)
+camera = Camera(
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    map_width,
+    map_height
+)
 
-# Create obstacles for collision detection
-level = Level(WORLD_WIDTH, WORLD_HEIGHT)
-collision_system = CollisionSystem(level.obstacles)
-
-
-def draw_world(screen, camera):
-    tile_size = 64
-
-    # Draw the world grid
-    for x in range(0, WORLD_WIDTH, tile_size):
-
-        for y in range(0, WORLD_HEIGHT, tile_size):
-            
-            # Create a temporary entity to represent the tile's position in the world
-            world_rect = pygame.Rect(x, y, tile_size, tile_size)
-            screen_rect = camera.apply(
-                type("Entity", (), {"rect": world_rect})
-            )
-
-            # Draw the tile as a dark rectangle with a border
-            pygame.draw.rect(screen, (25, 25, 32), screen_rect)
-            pygame.draw.rect(screen, (35, 35, 42), screen_rect, 1)
+# Create a collision system using tilemap obstacles
+collision_system = CollisionSystem(tilemap.obstacles)
 
 # Game loop
 running = True
@@ -64,13 +56,10 @@ while running:
     screen.fill((10, 10, 15))
 
     # Draw the world
-    draw_world(screen, camera)
+    tilemap.draw(screen, camera)
 
     # Draw the player
     player.draw(screen, camera)
-
-    # Draw obstacles
-    level.draw(screen, camera)
 
     # Update the display
     pygame.display.flip()
