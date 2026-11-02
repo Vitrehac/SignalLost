@@ -69,7 +69,7 @@ class PowerPuzzle:
         instruction = instruction_font.render("Click tiles to rotate. Connect SOURCE to OUTPUT.", True, (210, 210, 210))
 
         screen.blit(instruction, instruction.get_rect(centerx=panel.centerx, y=panel.y + 25))
-
+        print("hello, world")
 
 
         # Draw the grid of tiles
