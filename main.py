@@ -90,9 +90,12 @@ while running:
 
         # Handle interaction key press when the power puzzle is not active
         elif event.type == pygame.KEYDOWN:
+
+            # Handle interaction with terminals and doors when the E key is pressed and the power puzzle is not active
             if event.key == pygame.K_e and not power_puzzle.active:
                 interaction = tilemap.get_nearby_interaction(player)
 
+                # Handle interaction with terminals and doors based on the interaction type
                 if interaction is not None:
                     if interaction["type"] == "terminal":
                         power_puzzle.open()
@@ -104,10 +107,11 @@ while running:
                     else:
                         tilemap.interact(player)
 
-            if event.key == pygame.K_ESCAPE and power_puzzle.active:
+            # Handle closing the power puzzle when the esc key is pressed
+            if event.key == pygame.K_ESCAPE and power_puzzle.active and not power_puzzle.solved:
                 power_puzzle.close()
-                print("Puzzle closed: ", power_puzzle.active)
-        
+
+        # Handle mouse click events when the power puzzle is active
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1 and power_puzzle.active:
                 power_puzzle.handle_click(event.pos, screen)
@@ -148,8 +152,12 @@ while running:
             objectives.advance()
     screen.blit(objective_text, (20, 20))
 
-    if power_puzzle.solved and not tilemap.power_on:
+    # Check if the power puzzle is solved and the power is not yet on, then activate the terminal
+    if power_puzzle.solved and not power_puzzle.active and not tilemap.power_on:
         tilemap.activate_terminal(player)
+
+    # Update the power puzzle state
+    power_puzzle.update()
 
     # Update the display
     pygame.display.flip()
