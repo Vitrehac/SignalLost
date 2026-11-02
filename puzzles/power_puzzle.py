@@ -9,15 +9,15 @@ class PowerPuzzle:
         self.grid_size = 3
         self.tile_size = 80
         self.grid = [
-            [1, 0, 1],
-            [0, 1, 0],
-            [1, 0, 1]
+            [2, 0, 1],
+            [0, 3, 0],
+            [1, 2, 1]
         ]
 
         self.tile_types = [
             ["corner", "straight", "corner"],
-            ["straight", "straight", "straight"],
-            ["corner", "straight", "corner"]
+            ["corner", "corner", "corner"],
+            ["straight", "corner", "straight"]
         ]
 
     def open(self):
@@ -50,6 +50,27 @@ class PowerPuzzle:
 
         start_x = panel.centerx - grid_width // 2
         start_y = panel.centery - grid_height // 2
+
+        label_font = pygame.font.Font(None, 22)
+
+        source_text = label_font.render("SOURCE >", True, (80, 220, 160))
+
+        output_text = label_font.render("> OUTPUT", True, (230, 170, 90))
+
+        source_pos = (start_x - 12, start_y + self.tile_size * 1.5)
+
+        output_pos = (start_x + grid_width + 12, start_y + self.tile_size * 1.5)
+
+        screen.blit(source_text, source_text.get_rect(midright=source_pos))
+
+        screen.blit(output_text, output_text.get_rect(midleft=output_pos))
+
+        instruction_font = pygame.font.Font(None, 24)
+        instruction = instruction_font.render("Click tiles to rotate. Connect SOURCE to OUTPUT.", True, (210, 210, 210))
+
+        screen.blit(instruction, instruction.get_rect(centerx=panel.centerx, y=panel.y + 25))
+
+
 
         # Draw the grid of tiles
         for row in range(self.grid_size):
@@ -101,6 +122,11 @@ class PowerPuzzle:
         if 0 <= row < self.grid_size and 0 <= col < self.grid_size:
             self.grid[row][col] = (self.grid[row][col] + 1) % 4
 
+            if self.check_solution():
+                self.solved = True
+                self.active = False
+                print("Circuit connected! Power restored.")
+
             # Debugging output to verify the tile rotation
             print("Rotated tile: ", row, col)
             print("New rotation: ", self.grid[row][col])
@@ -141,9 +167,12 @@ class PowerPuzzle:
             )
 
     def get_connections(self, row, col):
+
+        # Get the tile type and rotation for the specified tile
         tile_type = self.tile_types[row][col]
         rotation = self.grid[row][col]
 
+        # Determine the base connections based on the tile type
         if tile_type == "straight":
             base_connections = [0, 2]
         else:
@@ -153,6 +182,8 @@ class PowerPuzzle:
 
 
     def check_solution(self):
+
+        # Check if there is a valid path from the start tile to the end tile in the puzzle grid
         directions = [
             (-1, 0),
             (0, 1),
@@ -163,7 +194,7 @@ class PowerPuzzle:
         start = (1, 0)
         end = (1, 2)
 
-        if 3 not in self.get_connectionos(*start):
+        if 3 not in self.get_connections(*start):
             return False
 
         if 1 not in self.get_connections(*end):
@@ -172,6 +203,7 @@ class PowerPuzzle:
         queue = [start]
         visited = set()
 
+        # Perform a search to find a valid path from the start tile to the end tile
         while queue:
             row, col = queue.pop(0)
 
@@ -183,17 +215,20 @@ class PowerPuzzle:
             if (row, col) == end:
                 return True
 
+            # Check the connections of the current tile and explore neighboring tiles
             for direction in self.get_connections(row, col):
                 dr, dc = directions[direction]
 
                 next_row = row + dr
                 next_col = col + dc
-
+                
+                # Check if the next tile is within the bounds of the grid
                 if not (0 <= next_row < self.grid_size and 0 <= next_col < self.grid_size):
                     continue
 
                 opposite = (direction + 2) % 4
 
+                # Check if the next tile has a connection back to the current tile
                 if opposite in self.get_connections(next_row, next_col):
                     queue.append((next_row, next_col))
         return False

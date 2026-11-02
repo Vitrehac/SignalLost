@@ -148,6 +148,9 @@ while running:
             objectives.advance()
     screen.blit(objective_text, (20, 20))
 
+    if power_puzzle.solved and not tilemap.power_on:
+        tilemap.activate_terminal(player)
+
     # Update the display
     pygame.display.flip()
 
