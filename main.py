@@ -3,6 +3,7 @@ from levels.tilemap import TileMap
 from entities.player import Player
 from systems.camera import Camera
 from systems.collision import CollisionSystem
+from systems.objectives import ObjectiveSystem
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, WORLD_WIDTH, WORLD_HEIGHT
 
 # Initialize Pygame
@@ -15,11 +16,17 @@ pygame.display.set_caption(TITLE)
 # Initialize font
 interaction_font = pygame.font.Font(None, 28)
 
+# Initialize the objective font
+objective_font = pygame.font.Font(None, 30)
+
 # Clock to control the frame rate
 clock = pygame.time.Clock()
 
 # Create a tilemap
 tilemap = TileMap()
+
+# Create an objective system
+objectives = ObjectiveSystem()
 
 # Create a player
 player = Player(150, 150)
@@ -38,6 +45,10 @@ camera = Camera(
 
 # Create a collision system using tilemap obstacles
 collision_system = CollisionSystem(tilemap.obstacles)
+
+# Define the control room trigger area
+control_room_trigger = pygame.Rect(13 * 64, 8 * 64, 8 * 64, 2 * 64)
+
 
 
 def draw_interaction_prompt(screen, camera, door_rect, message):
@@ -87,9 +98,27 @@ while running:
 
     # Check for nearby terminals & doors and draw interaction prompt if the player is close enough
     interaction = tilemap.get_nearby_interaction(player)
-
+    
+    # Draw the interaction prompt if the player is near a terminal or door
     if interaction is not None:
         draw_interaction_prompt(screen, camera, interaction["rect"], interaction["message"])
+    
+    # Update objectives based on game state
+    if tilemap.power_on and objectives.current_index == 0:
+        objectives.advance()
+    
+    # Render the current objective text on the screen
+    objective_text = objective_font.render(
+        "OBJECTIVE: " + objectives.get_current_objective(),
+        True, 
+        (220, 220, 220)
+    )
+
+    if objectives.current_index == 1:
+        if player.rect.colliderect(control_room_trigger):
+            objectives.advance()
+    screen.blit(objective_text, (20, 20))
+
     # Update the display
     pygame.display.flip()
 
