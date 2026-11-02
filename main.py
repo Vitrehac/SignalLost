@@ -1,6 +1,7 @@
 import pygame
 from levels.tilemap import TileMap
 from entities.player import Player
+from puzzles.power_puzzle import PowerPuzzle
 from systems.camera import Camera
 from systems.collision import CollisionSystem
 from systems.objectives import ObjectiveSystem
@@ -30,6 +31,9 @@ objectives = ObjectiveSystem()
 
 # Create a player
 player = Player(150, 150)
+
+# Create a power puzzle
+power_puzzle = PowerPuzzle()
 
 # Get the actual world dimensions based on the tilemap
 map_width = len(tilemap.room[0]) * tilemap.tile_size
@@ -73,7 +77,8 @@ while running:
 
     # Update the player
     dt = clock.tick(FPS) / 1000
-    player.update(dt, collision_system)
+    if not power_puzzle.active:
+        player.update(dt, collision_system)
 
     # Update the camera
     camera.update(player)
@@ -83,9 +88,29 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        # Handle interaction key press when the power puzzle is not active
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_e:
-                tilemap.interact(player)
+            if event.key == pygame.K_e and not power_puzzle.active:
+                interaction = tilemap.get_nearby_interaction(player)
+
+                if interaction is not None:
+                    if interaction["type"] == "terminal":
+                        power_puzzle.open()
+                        print("Puzzle active: ", power_puzzle.active)
+                        print("Puzzle solved: ", power_puzzle.solved)
+                        print("Facility power: ", tilemap.power_on)
+                        print("Current objective: ", objectives.current_index)
+
+                    else:
+                        tilemap.interact(player)
+
+            if event.key == pygame.K_ESCAPE and power_puzzle.active:
+                power_puzzle.close()
+                print("Puzzle closed: ", power_puzzle.active)
+        
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and power_puzzle.active:
+                power_puzzle.handle_click(event.pos, screen)
 
     # Draw background
     screen.fill((10, 10, 15))
@@ -99,6 +124,9 @@ while running:
     # Check for nearby terminals & doors and draw interaction prompt if the player is close enough
     interaction = tilemap.get_nearby_interaction(player)
     
+    # Draw the power puzzle if it's active
+    power_puzzle.draw(screen)
+
     # Draw the interaction prompt if the player is near a terminal or door
     if interaction is not None:
         draw_interaction_prompt(screen, camera, interaction["rect"], interaction["message"])
@@ -114,6 +142,7 @@ while running:
         (220, 220, 220)
     )
 
+    # Advance to the next objective if the player enters the control room after restoring power
     if objectives.current_index == 1:
         if player.rect.colliderect(control_room_trigger):
             objectives.advance()
