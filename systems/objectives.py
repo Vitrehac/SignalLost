@@ -3,7 +3,9 @@ class ObjectiveSystem:
         self.objectives = [
             "Restore power to the facility",
             "Enter the control room ",
-            "Investigate the facility"
+            "Investigate the facility",
+            "Access the control room computer",
+            "Find the containment chamber"
         ]
 
         self.current_index = 0

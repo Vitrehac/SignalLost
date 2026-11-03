@@ -6,6 +6,8 @@ from systems.camera import Camera
 from systems.collision import CollisionSystem
 from systems.objectives import ObjectiveSystem
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, WORLD_WIDTH, WORLD_HEIGHT
+from ui.log_viewer import LogViewer
+
 
 # Initialize Pygame
 pygame.init()
@@ -19,6 +21,9 @@ interaction_font = pygame.font.Font(None, 28)
 
 # Initialize the objective font
 objective_font = pygame.font.Font(None, 30)
+
+# Initialize the log viewer
+log_viewer = LogViewer([])
 
 # Clock to control the frame rate
 clock = pygame.time.Clock()
@@ -104,7 +109,7 @@ while running:
 
     # Update the player
     dt = clock.tick(FPS) / 1000
-    if not power_puzzle.active:
+    if not power_puzzle.active and not log_viewer.active:
         player.update(dt, collision_system)
 
     # Update the camera
@@ -119,11 +124,12 @@ while running:
         elif event.type == pygame.KEYDOWN:
 
             # Handle interaction with terminals and doors when the E key is pressed and the power puzzle is not active
-            if event.key == pygame.K_e and not power_puzzle.active:
+            if event.key == pygame.K_e and not power_puzzle.active and not log_viewer.active:
                 interaction = tilemap.get_nearby_interaction(player)
 
-                # Handle interaction with terminals and doors based on the interaction type
+                # Handle interaction with terminals, computers and doors based on the interaction type
                 if interaction is not None:
+                    
                     if interaction["type"] == "terminal":
                         power_puzzle.open()
                         print("Puzzle active: ", power_puzzle.active)
@@ -131,12 +137,29 @@ while running:
                         print("Facility power: ", tilemap.power_on)
                         print("Current objective: ", objectives.current_index)
 
+                    elif interaction["type"] == "computer":
+                        log_viewer.open(
+                            "LOG 001: Emergency shutdown. "
+                            "At 4:36, the facility experienced a complete system failure. "
+                            "All communication with the lower research levels has been lost. "
+                            "The emergency broadcast was activated without authorization. "
+                            "Personnel are instructed to remain inside their assigned sectors. "
+                        )
+                        print("Log opened:", log_viewer.active)
+                        print("Message:", log_viewer.current_log)
+
                     else:
                         tilemap.interact(player)
 
             # Handle closing the power puzzle when the esc key is pressed
             if event.key == pygame.K_ESCAPE and power_puzzle.active and not power_puzzle.solved:
                 power_puzzle.close()
+            
+            if event.key == pygame.K_ESCAPE:
+                if log_viewer.active:
+                    log_viewer.close()
+                elif power_puzzle.active and not power_puzzle.solved:
+                    power_puzzle.close()
 
         # Handle mouse click events when the power puzzle is active
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -165,9 +188,18 @@ while running:
         draw_interaction_prompt(screen, camera, interaction["rect"], interaction["message"])
     
     # Update objectives based on game state
-    if tilemap.power_on and objectives.current_index == 0:
+    if current_level == 1 and tilemap.power_on and objectives.current_index == 0:
         objectives.advance()
     
+    # Update objectives based on game state for level 2
+    if current_level == 2:
+        if objectives.current_index == 2:
+            objectives.advance()
+        
+        if log_viewer.has_read_log and objectives.current_index == 3:
+            objectives.advance()
+
+
     # Render the current objective text on the screen
     objective_text = objective_font.render(
         "OBJECTIVE: " + objectives.get_current_objective(),
@@ -177,6 +209,9 @@ while running:
 
     # Draw the objective text on the screen at a fixed position
     screen.blit(objective_text, (20, 20))
+
+    # Draw the log viewer if it's active
+    log_viewer.draw(screen)
 
     # Check if the power puzzle is solved and the power is not yet on, then activate the terminal
     if power_puzzle.solved and not power_puzzle.active and not tilemap.power_on:
