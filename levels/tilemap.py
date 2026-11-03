@@ -2,13 +2,14 @@ from pathlib import Path
 import pygame
 
 class TileMap:
-    def __init__(self):
+    def __init__(self, level_file="level1.txt"):
         self.tile_size = 64
 
-        # Load the room layout from a text file 
-        map_path = Path(__file__).parent / "maps" / "level1.txt"
-        with open(map_path, "r") as file:
-            self.room = file.read().splitlines()
+        # Load the room layout from a text file
+        map_path = Path(__file__).parent / "maps" / level_file
+        with open(map_path, "r") as f:
+            self.room = [line.strip() for line in f.readlines()]
+
 
         self.obstacles = []
 
@@ -17,7 +18,7 @@ class TileMap:
             for column_index, tile in enumerate(row):
 
                 # If the tile is a wall, create a rectangle for it and add it to the obstacles list
-                if tile in ("#", "D", "L", "T"):
+                if tile in ("#", "D", "L", "T", "C"):
                     x = column_index * self.tile_size
                     y = row_index * self.tile_size
                     self.obstacles.append(pygame.Rect(x, y, self.tile_size, self.tile_size))
@@ -60,6 +61,10 @@ class TileMap:
                 # Draw the terminal tile with a different color
                 elif tile == "T":
                     color = (40, 130, 180)
+
+                # Draw the computer tile with a different color
+                elif tile == "C":
+                    color = (120, 80, 180)
                 else:
                     color = (25, 25, 32)
 
@@ -181,17 +186,50 @@ class TileMap:
                 "message": message
             }
         
+        computer = self.get_nearby_computer(player)
+        if computer is not None:
+            return {
+                "type": "computer", 
+                "rect": computer, 
+                "message": "E Read logs"
+            }
+
         return None
 
     def interact(self, player):
         interaction = self.get_nearby_interaction(player)
         print("detected interaction:", interaction)
-        
+
         if interaction is None:
             return
         
-        if interaction["type"] == "terminal":
+        elif interaction["type"] == "terminal":
             self.activate_terminal(player)
 
         elif interaction["type"] == "door":
             self.open_door(player)
+
+        elif interaction["type"] == "computer":
+            print("Interacting with computer")
+
+    
+    def get_nearby_computer(self, player):
+        interaction_range = 80
+
+        for row_index, row in enumerate(self.room):
+            for column_index, tile in enumerate(row):
+                if tile != "C":
+                    continue
+                
+                computer_rect = pygame.Rect(
+                    column_index * self.tile_size,
+                    row_index * self.tile_size,
+                    self.tile_size,
+                    self.tile_size
+                )
+
+                distance = pygame.Vector2(player.rect.center).distance_to(computer_rect.center)
+
+                if distance <= interaction_range:
+                    return computer_rect
+        return None

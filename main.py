@@ -23,8 +23,8 @@ objective_font = pygame.font.Font(None, 30)
 # Clock to control the frame rate
 clock = pygame.time.Clock()
 
-# Create a tilemap
-tilemap = TileMap()
+# Create a tilemap no 1
+tilemap = TileMap("level1.txt")
 
 # Create an objective system
 objectives = ObjectiveSystem()
@@ -50,8 +50,35 @@ camera = Camera(
 # Create a collision system using tilemap obstacles
 collision_system = CollisionSystem(tilemap.obstacles)
 
-# Define the control room trigger area
-control_room_trigger = pygame.Rect(13 * 64, 8 * 64, 8 * 64, 2 * 64)
+# Track the current level to determine which tilemap to use
+current_level = 1
+
+def load_level(level_number):
+
+    # Load the specified level and update the global variables for tilemap, collision system, and camera
+    global tilemap, collision_system, camera
+
+    tilemap = TileMap(f"level{level_number}.txt")
+
+    map_width = len(tilemap.room[0]) * tilemap.tile_size
+    map_height = len(tilemap.room) * tilemap.tile_size
+
+    camera = Camera(
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+        map_width,
+        map_height
+    )
+
+    collision_system = CollisionSystem(tilemap.obstacles)
+
+    # Reset the player's position to the starting point for the new level
+    player.x = 150
+    player.y = 150
+    player.rect.topleft = (150, 150)
+
+# Define the exit trigger area for level transition
+exit_trigger = pygame.Rect(13 * 64, 8 * 64, 8 * 64, 2 * 64)
 
 
 
@@ -122,6 +149,8 @@ while running:
     # Draw the world
     tilemap.draw(screen, camera)
 
+    if current_level == 1:
+        pygame.draw.rect(screen, (50, 200, 100), exit_trigger.move(-camera.offset.x, -camera.offset.y), 2)
     # Draw the player
     player.draw(screen, camera)
 
@@ -146,10 +175,7 @@ while running:
         (220, 220, 220)
     )
 
-    # Advance to the next objective if the player enters the control room after restoring power
-    if objectives.current_index == 1:
-        if player.rect.colliderect(control_room_trigger):
-            objectives.advance()
+    # Draw the objective text on the screen at a fixed position
     screen.blit(objective_text, (20, 20))
 
     # Check if the power puzzle is solved and the power is not yet on, then activate the terminal
@@ -158,7 +184,12 @@ while running:
 
     # Update the power puzzle state
     power_puzzle.update()
-
+    if current_level == 1 and tilemap.power_on:
+        if player.rect.colliderect(exit_trigger):
+            current_level = 2
+            load_level(current_level)
+            objectives.advance()
+            print("Loaded level 2")
     # Update the display
     pygame.display.flip()
 
