@@ -18,7 +18,7 @@ class TileMap:
             for column_index, tile in enumerate(row):
 
                 # If the tile is a wall, create a rectangle for it and add it to the obstacles list
-                if tile in ("#", "D", "L", "T", "C", "K"):
+                if tile in ("#", "D", "L", "T", "C", "K", "S"):
                     x = column_index * self.tile_size
                     y = row_index * self.tile_size
                     self.obstacles.append(pygame.Rect(x, y, self.tile_size, self.tile_size))
@@ -58,17 +58,24 @@ class TileMap:
                 elif tile == "L":
                     color = (160, 40, 40)
                 
-                # Draw the terminal tile with a different color
+                # Terminal colour
                 elif tile == "T":
                     color = (40, 130, 180)
 
-                # Draw the computer tile with a different color
+                # Computer colour
                 elif tile == "C":
                     color = (120, 80, 180)
 
-                # Draw the keypad tile with a different color
+                # Keypad colour
                 elif tile == "K":
                     color = (180, 180, 40)
+                # Security door colour
+                elif tile == "S":
+                    color = (180, 50, 100)
+
+                # Exit colour
+                elif tile == "X":
+                    color = (50, 200, 100)
 
                 else:
                     color = (25, 25, 32)
@@ -267,3 +274,35 @@ class TileMap:
                 if distance<= interaction_range:
                     return keypad_rect
         return None
+
+
+    def unlock_security_door(self):
+        for row_index, row in enumerate(self.room):
+            if "S" not in row:
+                continue
+            column_index = row.index("S")
+
+            door_rect = pygame.Rect(
+            column_index * self.tile_size,
+            row_index * self.tile_size,
+            self.tile_size,
+            self.tile_size
+            )
+
+            self.room[row_index] = (row[:column_index] + "." + row[column_index + 1:])
+            self.obstacles.remove(door_rect)
+
+            return True
+        return False
+
+    
+    def get_exit_rect(self):
+        for row_index, row in enumerate(self.room):
+            for column_index, tile in enumerate(row):
+                if tile == "X":
+                    return pygame.Rect(
+                        column index * self.tile_size,
+                        row_index * self.tile_size,
+                        self.tile_size,
+                        self.tile_size
+                    )

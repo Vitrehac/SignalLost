@@ -1,6 +1,7 @@
 import pygame
 from levels.tilemap import TileMap
 from entities.player import Player
+from puzzles.keypad_puzzle import KeypadPuzzle
 from puzzles.power_puzzle import PowerPuzzle
 from systems.camera import Camera
 from systems.collision import CollisionSystem
@@ -30,6 +31,12 @@ clock = pygame.time.Clock()
 
 # Create a tilemap no 1
 tilemap = TileMap("level1.txt")
+
+# Create a keypad puzzle
+keypad_puzzle = KeypadPuzzle()
+
+# Create a security door
+security_door_unlocked = False
 
 # Create an objective system
 objectives = ObjectiveSystem()
@@ -109,7 +116,7 @@ while running:
 
     # Update the player
     dt = clock.tick(FPS) / 1000
-    if not power_puzzle.active and not log_viewer.active:
+    if not power_puzzle.active and not log_viewer.active and not keypad_puzzle.active:
         player.update(dt, collision_system)
 
     # Update the camera
@@ -123,43 +130,46 @@ while running:
         # Handle interaction key press when the power puzzle is not active
         elif event.type == pygame.KEYDOWN:
 
-            # Handle interaction with terminals and doors when the E key is pressed and the power puzzle is not active
-            if event.key == pygame.K_e and not power_puzzle.active and not log_viewer.active:
-                interaction = tilemap.get_nearby_interaction(player)
+            if keypad_puzzle.active:
 
-                # Handle interaction with terminals, computers and doors based on the interaction type
+                if event.key == pygame.K_ESCAPE:
+                    if not keypad_puzzle.solved:
+                        keypad_puzzle.close()
+                
+                else:
+                    keypad_puzzle.handle_key(event.key)
+                    print("Entered:", keypad_puzzle.entered_code)
+                    print("Message:", keypad_puzzle.message)
+
+            elif log_viewer.active:
+                
+                if event.key == pygame.K_ESCAPE:
+                    log_viewer.close()
+
+            elif power_puzzle.active:
+                if event.key == pygame.K_ESCAPE and not power_puzzle.solved:
+                    power_puzzle.close()
+            
+            elif event.key == pygame.K_e:
+                interaction = tilemap.get_nearby_interaction(player)
                 if interaction is not None:
-                    
+
                     if interaction["type"] == "terminal":
                         power_puzzle.open()
-                        print("Puzzle active: ", power_puzzle.active)
-                        print("Puzzle solved: ", power_puzzle.solved)
-                        print("Facility power: ", tilemap.power_on)
-                        print("Current objective: ", objectives.current_index)
-
+                    
                     elif interaction["type"] == "computer":
                         log_viewer.open(
                             "LOG 001: Emergency shutdown. "
                             "At 4:36, the facility experienced a complete system failure. "
                             "All communication with the lower research levels has been lost. "
                             "The emergency broadcast was activated without authorization. "
-                            "Personnel are instructed to remain inside their assigned sectors. "
                         )
-                        print("Log opened:", log_viewer.active)
-                        print("Message:", log_viewer.current_log)
+
+                    elif interaction["type"] == "keypad":
+                        keypad_puzzle.open()
 
                     else:
                         tilemap.interact(player)
-
-            # Handle closing the power puzzle when the esc key is pressed
-            if event.key == pygame.K_ESCAPE and power_puzzle.active and not power_puzzle.solved:
-                power_puzzle.close()
-            
-            if event.key == pygame.K_ESCAPE:
-                if log_viewer.active:
-                    log_viewer.close()
-                elif power_puzzle.active and not power_puzzle.solved:
-                    power_puzzle.close()
 
         # Handle mouse click events when the power puzzle is active
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -183,8 +193,16 @@ while running:
     # Draw the power puzzle if it's active
     power_puzzle.draw(screen)
 
+    # Draw the keypad puzzle
+    keypad_puzzle.draw(screen)
+
     # Draw the interaction prompt if the player is near a terminal or door
-    if interaction is not None:
+    if (
+        interaction is not None
+        and not power_puzzle.active
+        and not log_viewer.active
+        and not keypad_puzzle.active
+    ):
         draw_interaction_prompt(screen, camera, interaction["rect"], interaction["message"])
     
     # Update objectives based on game state
@@ -214,17 +232,38 @@ while running:
     log_viewer.draw(screen)
 
     # Check if the power puzzle is solved and the power is not yet on, then activate the terminal
-    if power_puzzle.solved and not power_puzzle.active and not tilemap.power_on:
+    if (
+        current_level == 1
+        and power_puzzle.solved
+        and not power_puzzle.active
+        and not tilemap.power_on
+    ):
         tilemap.activate_terminal(player)
 
     # Update the power puzzle state
     power_puzzle.update()
-    if current_level == 1 and tilemap.power_on:
-        if player.rect.colliderect(exit_trigger):
-            current_level = 2
+
+    # Update the keypad puzzle state
+    keypad_puzzle.update()
+    
+    # Transition logic
+    exit_rect = tilemap.get_exit_rect()
+    if exit_rect is not None:
+        if plater.rect.colliderect(exit_rect):
+            current_level += 1
             load_level(current_level)
-            objectives.advance()
-            print("Loaded level 2")
+            print(f"Loaded Level {current_level}")
+
+    # Proccess security doors
+    if (
+        current_level == 2
+        and keypad_puzzle.solved
+        and not security_door_unlocked
+    ):
+        if tilemap.unlock_security_door():
+            security_door_unlocked = True
+            print("Security door unlocked!")
+
     # Update the display
     pygame.display.flip()
 
