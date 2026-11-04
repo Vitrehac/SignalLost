@@ -5,7 +5,8 @@ class ObjectiveSystem:
             "Enter the control room ",
             "Investigate the facility",
             "Access the control room computer",
-            "Find the containment chamber"
+            "Find the containment chamber",
+            "Investigate the containment sector"
         ]
 
         self.current_index = 0

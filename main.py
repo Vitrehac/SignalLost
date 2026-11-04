@@ -47,6 +47,11 @@ player = Player(150, 150)
 # Create a power puzzle
 power_puzzle = PowerPuzzle()
 
+# Create a checkpoint
+checkpoint = (150, 150)
+
+security_alert_start = None
+security_alert_duration = 1500
 # Get the actual world dimensions based on the tilemap
 map_width = len(tilemap.room[0]) * tilemap.tile_size
 map_height = len(tilemap.room) * tilemap.tile_size
@@ -89,10 +94,6 @@ def load_level(level_number):
     player.y = 150
     player.rect.topleft = (150, 150)
 
-# Define the exit trigger area for level transition
-exit_trigger = pygame.Rect(13 * 64, 8 * 64, 8 * 64, 2 * 64)
-
-
 
 def draw_interaction_prompt(screen, camera, door_rect, message):
     # Draw the interaction prompt above the door if the player is close enough
@@ -118,6 +119,15 @@ while running:
     dt = clock.tick(FPS) / 1000
     if not power_puzzle.active and not log_viewer.active and not keypad_puzzle.active:
         player.update(dt, collision_system)
+
+    # Security laser interaction
+    if current_level == 3:
+        hazard = tilemap.get_touching_hazard(player)
+        if hazard is not None:
+            security_alert_start = pygame.time.get_ticks()
+            player.x, player.y = checkpoint
+            player.rect.topleft = checkpoint
+
 
     # Update the camera
     camera.update(player)
@@ -159,10 +169,12 @@ while running:
                     
                     elif interaction["type"] == "computer":
                         log_viewer.open(
-                            "LOG 001: Emergency shutdown. "
-                            "At 4:36, the facility experienced a complete system failure. "
-                            "All communication with the lower research levels has been lost. "
-                            "The emergency broadcast was activated without authorization. "
+                            "L0G NO1: Emergency shutdown. "
+                            "At 4:36 a.m., the facility experienced a complete system failure. "
+                            "A11 communication with the lower research levels has been lost. "
+                            "The emergency broadcast was activat3d without authorization. "
+                            "There are rumors that the archive has been corrupted. "
+                            "Make sure to check character integrity. "
                         )
 
                     elif interaction["type"] == "keypad":
@@ -182,8 +194,6 @@ while running:
     # Draw the world
     tilemap.draw(screen, camera)
 
-    if current_level == 1:
-        pygame.draw.rect(screen, (50, 200, 100), exit_trigger.move(-camera.offset.x, -camera.offset.y), 2)
     # Draw the player
     player.draw(screen, camera)
 
@@ -248,11 +258,17 @@ while running:
     
     # Transition logic
     exit_rect = tilemap.get_exit_rect()
-    if exit_rect is not None:
-        if plater.rect.colliderect(exit_rect):
-            current_level += 1
-            load_level(current_level)
-            print(f"Loaded Level {current_level}")
+    if exit_rect is not None and player.rect.colliderect(exit_rect):
+        current_level += 1
+        load_level(current_level)
+
+        if current_level == 2 and objectives.current_index == 1:
+            objectives.advance()
+
+        if current_level == 3 and objectives.current_index == 4:
+            objectives.advance()
+
+        print(f"Loaded Level {current_level}")
 
     # Proccess security doors
     if (
@@ -264,6 +280,27 @@ while running:
             security_door_unlocked = True
             print("Security door unlocked!")
 
+    if security_alert_start is not None:
+        elapsed = pygame.time.get_ticks() - security_alert_start
+
+        if elapsed < security_alert_duration:
+            alert_font = pygame.font.Font(None, 48)
+
+            alert_text = alert_font.render(
+                "SECURITY BREACH - RETURNED TO CHECKPOINT",
+                True,
+                (255, 70, 70)
+            )
+
+            alert_rect = alert_text.get_rect(
+                center=(SCREEN_WIDTH // 2, 100)
+            )
+
+            screen.blit(alert_text, alert_rect)
+        
+        else:
+            security_alert_start = None
+   
     # Update the display
     pygame.display.flip()
 

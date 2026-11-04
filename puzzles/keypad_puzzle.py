@@ -7,11 +7,11 @@ class KeypadPuzzle:
         # Set the puzzle password and timer when it's solved
         self.active = False
         self.solved =False
-        self.correct_code = "6767"
+        self.correct_code = "0113"
         self.entered_code = ""
         self.message = ""
         self.success_start = None
-        self.success_duration = 2000
+        self.success_duration = 1000
 
 
     def open(self):

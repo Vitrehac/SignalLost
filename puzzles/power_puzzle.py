@@ -9,7 +9,7 @@ class PowerPuzzle:
         self.solved = False
 
         # Define the duration for which the success message is displayed after solving the puzzle
-        self.success_duration = 2000
+        self.success_duration = 1000
         self.success_start = None
         # Define the grid size and tile size for the puzzle
         self.grid_size = 3

@@ -77,6 +77,10 @@ class TileMap:
                 elif tile == "X":
                     color = (50, 200, 100)
 
+                # Laser colour
+                elif tile == "H":
+                    color = (220, 40, 50)
+
                 else:
                     color = (25, 25, 32)
 
@@ -301,8 +305,27 @@ class TileMap:
             for column_index, tile in enumerate(row):
                 if tile == "X":
                     return pygame.Rect(
-                        column index * self.tile_size,
+                        column_index * self.tile_size,
                         row_index * self.tile_size,
                         self.tile_size,
                         self.tile_size
                     )
+
+
+    def get_touching_hazard(self, player):
+        for row_index, row in enumerate(self.room):
+            for column_index, tile in enumerate(row):
+                if tile != "H":
+                    continue
+                
+                hazard_rect = pygame.Rect(
+                    column_index * self.tile_size,
+                    row_index * self.tile_size,
+                    self.tile_size,
+                    self.tile_size
+                )
+
+                if player.rect.colliderect(hazard_rect):
+                    return hazard_rect
+        
+        return None
