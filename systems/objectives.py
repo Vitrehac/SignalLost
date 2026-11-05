@@ -14,4 +14,7 @@ class ObjectiveSystem:
         if not state.containment_entered:
             return "Find the containment chamber"
         
-        return "Investigate the containment sector"
+        if not state.security_disabled:
+            return "Disable the security system"
+
+        return "Access the containment archive"

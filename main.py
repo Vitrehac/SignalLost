@@ -8,6 +8,7 @@ from systems.collision import CollisionSystem
 from systems.game_state import GameState
 from systems.objectives import ObjectiveSystem
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, WORLD_WIDTH, WORLD_HEIGHT
+from ui.ending_screen import EndingScreen
 from ui.log_viewer import LogViewer
 
 
@@ -29,6 +30,9 @@ log_viewer = LogViewer([])
 
 # Initialize the game state
 game_state = GameState()
+
+# Initialize the ending screen
+ending_screen = EndingScreen()
 
 # Clock to control the frame rate
 clock = pygame.time.Clock()
@@ -121,7 +125,12 @@ while running:
 
     # Update the player
     dt = clock.tick(FPS) / 1000
-    if not power_puzzle.active and not log_viewer.active and not keypad_puzzle.active:
+    if (
+        not power_puzzle.active 
+        and not log_viewer.active 
+        and not keypad_puzzle.active
+        and not ending_screen.active
+    ):
         player.update(dt, collision_system)
 
     # Security laser interaction
@@ -144,8 +153,12 @@ while running:
         # Handle interaction key press when the power puzzle is not active
         elif event.type == pygame.KEYDOWN:
             
+            if ending_screen.active:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                
             # Keypad puzzle
-            if keypad_puzzle.active:
+            elif keypad_puzzle.active:
 
                 if event.key == pygame.K_ESCAPE:
                     if not keypad_puzzle.solved:
@@ -168,15 +181,20 @@ while running:
             # Normal gameplay interactions
             elif event.key == pygame.K_e:
                 switch = None
+                final_terminal = None
 
                 if current_level == 3:
                     switch = tilemap.get_nearby_shutdown_switch(player)
+                    final_terminal = tilemap.get_nearby_final_terminal(player)
 
                 if switch is not None:
                     if not game_state.security_disabled:
                         game_state.security_disabled = True
                         tilemap.disable_lasers()
                         print("SECURITY SYSTEM DISABLED")
+
+                elif final_terminal is not None and game_state.security_disabled:
+                    ending_screen.open()
 
                 else:
                     interaction = tilemap.get_nearby_interaction(player)
@@ -318,7 +336,9 @@ while running:
         
         else:
             security_alert_start = None
-   
+    # Draw the ending screen
+    ending_screen.draw(screen)
+
     # Update the display
     pygame.display.flip()
 

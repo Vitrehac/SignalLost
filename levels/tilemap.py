@@ -177,9 +177,18 @@ class TileMap:
         return True
 
     def get_nearby_interaction(self, player):
-
+        
+        interaction_range = 80
         # Check for nearby terminal first, then check for nearby door
         terminal = self.get_nearby_terminal(player)
+        final_terminal = self.get_nearby_final_terminal(player)
+
+        if final_terminal is not None:
+            return {
+                "type": "final_terminal",
+                "rect": final_terminal,
+                "message": "E Access containment archive"
+            }
 
         # If the player is near a terminal and the power is off, return the interaction prompt for the terminal
         if terminal is not None and not self.power_on:
