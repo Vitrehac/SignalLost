@@ -1,20 +1,17 @@
 class ObjectiveSystem:
-    def __init__(self):
-        self.objectives = [
-            "Restore power to the facility",
-            "Enter the control room ",
-            "Investigate the facility",
-            "Access the control room computer",
-            "Find the containment chamber",
-            "Investigate the containment sector"
-        ]
+    def get_current_objective(self, state):
+        if not state.power_restored:
+            return "Restore power to the facility"
+        
+        if not state.control_room_entered:
+            return "Enter the control room"
+        
+        if not state.security_unlocked:
+            if not state.computer_read:
+                return "Find the security code (check the computer)"
+            return "Unlock containment access"
 
-        self.current_index = 0
-
-
-    def get_current_objective(self):
-        return self.objectives[self.current_index]
-    
-    def advance(self):
-        if self.current_index < len(self.objectives) - 1:
-            self.current_index += 1
+        if not state.containment_entered:
+            return "Find the containment chamber"
+        
+        return "Investigate the containment sector"

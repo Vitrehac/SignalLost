@@ -18,7 +18,7 @@ class TileMap:
             for column_index, tile in enumerate(row):
 
                 # If the tile is a wall, create a rectangle for it and add it to the obstacles list
-                if tile in ("#", "D", "L", "T", "C", "K", "S"):
+                if tile in ("#", "D", "L", "T", "C", "K", "S", "F"):
                     x = column_index * self.tile_size
                     y = row_index * self.tile_size
                     self.obstacles.append(pygame.Rect(x, y, self.tile_size, self.tile_size))
@@ -73,6 +73,10 @@ class TileMap:
                 elif tile == "S":
                     color = (180, 50, 100)
 
+                # Emergency shutdown button
+                elif tile == "B":
+                    color = (255, 180, 40)
+
                 # Exit colour
                 elif tile == "X":
                     color = (50, 200, 100)
@@ -81,6 +85,11 @@ class TileMap:
                 elif tile == "H":
                     color = (220, 40, 50)
 
+                # Final terminal colour
+                elif tile == "F":
+                    color = (60, 200, 180)
+                
+                # Floor colour
                 else:
                     color = (25, 25, 32)
 
@@ -328,4 +337,51 @@ class TileMap:
                 if player.rect.colliderect(hazard_rect):
                     return hazard_rect
         
+        return None
+
+    
+    def get_nearby_shutdown_switch(self, player):
+        for row_index, row in enumerate(self.room):
+            for column_index, tile in enumerate(row):
+                if tile != "B":
+                    continue
+
+                switch_rect = pygame.Rect(
+                    column_index * self.tile_size,
+                    row_index * self.tile_size,
+                    self.tile_size,
+                    self.tile_size
+                )
+
+                if player.rect.colliderect(switch_rect):
+                    return switch_rect
+                
+        return None
+    
+
+    def disable_lasers(self):
+        for row_index, row in enumerate(self.room):
+            self.room[row_index] = row.replace("H", ".")
+
+
+    def get_nearby_final_terminal(self, player):
+        interaction_range = 80
+
+        for row_index, row in enumerate(self.room):
+            for column_index, tile in enumerate(row):
+                if tile != "F":
+                    continue
+                
+                terminal_rect = pygame.Rect(
+                    column_index * self.tile_size,
+                    row_index * self.tile_size,
+                    self.tile_size,
+                    self.tile_size
+                )
+
+                distance = pygame.Vector2(player.rect.center).distance_to(terminal_rect.center)
+
+                if distance <= interaction_range:
+                    return terminal_rect
+
         return None

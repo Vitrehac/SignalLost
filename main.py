@@ -5,6 +5,7 @@ from puzzles.keypad_puzzle import KeypadPuzzle
 from puzzles.power_puzzle import PowerPuzzle
 from systems.camera import Camera
 from systems.collision import CollisionSystem
+from systems.game_state import GameState
 from systems.objectives import ObjectiveSystem
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TITLE, WORLD_WIDTH, WORLD_HEIGHT
 from ui.log_viewer import LogViewer
@@ -25,6 +26,9 @@ objective_font = pygame.font.Font(None, 30)
 
 # Initialize the log viewer
 log_viewer = LogViewer([])
+
+# Initialize the game state
+game_state = GameState()
 
 # Clock to control the frame rate
 clock = pygame.time.Clock()
@@ -121,7 +125,7 @@ while running:
         player.update(dt, collision_system)
 
     # Security laser interaction
-    if current_level == 3:
+    if current_level == 3 and not game_state.security_disabled:
         hazard = tilemap.get_touching_hazard(player)
         if hazard is not None:
             security_alert_start = pygame.time.get_ticks()
@@ -139,7 +143,8 @@ while running:
 
         # Handle interaction key press when the power puzzle is not active
         elif event.type == pygame.KEYDOWN:
-
+            
+            # Keypad puzzle
             if keypad_puzzle.active:
 
                 if event.key == pygame.K_ESCAPE:
@@ -148,40 +153,54 @@ while running:
                 
                 else:
                     keypad_puzzle.handle_key(event.key)
-                    print("Entered:", keypad_puzzle.entered_code)
-                    print("Message:", keypad_puzzle.message)
 
+            # Log viewer
             elif log_viewer.active:
                 
                 if event.key == pygame.K_ESCAPE:
                     log_viewer.close()
 
+            # Power puzzle
             elif power_puzzle.active:
                 if event.key == pygame.K_ESCAPE and not power_puzzle.solved:
                     power_puzzle.close()
             
+            # Normal gameplay interactions
             elif event.key == pygame.K_e:
-                interaction = tilemap.get_nearby_interaction(player)
-                if interaction is not None:
+                switch = None
 
-                    if interaction["type"] == "terminal":
-                        power_puzzle.open()
-                    
-                    elif interaction["type"] == "computer":
-                        log_viewer.open(
-                            "L0G NO1: Emergency shutdown. "
-                            "At 4:36 a.m., the facility experienced a complete system failure. "
-                            "A11 communication with the lower research levels has been lost. "
-                            "The emergency broadcast was activat3d without authorization. "
-                            "There are rumors that the archive has been corrupted. "
-                            "Make sure to check character integrity. "
-                        )
+                if current_level == 3:
+                    switch = tilemap.get_nearby_shutdown_switch(player)
 
-                    elif interaction["type"] == "keypad":
-                        keypad_puzzle.open()
+                if switch is not None:
+                    if not game_state.security_disabled:
+                        game_state.security_disabled = True
+                        tilemap.disable_lasers()
+                        print("SECURITY SYSTEM DISABLED")
 
-                    else:
-                        tilemap.interact(player)
+                else:
+                    interaction = tilemap.get_nearby_interaction(player)
+
+                    if interaction is not None:
+                        if interaction["type"] == "terminal":
+                            power_puzzle.open()
+                        
+                        elif interaction["type"] == "computer":
+                            log_viewer.open(
+                                "L0G NO1: Emergency shutdown. "
+                                "At 4:36 a.m., the facility experienced a complete system failure. "
+                                "A11 communication with the lower research levels has been lost. "
+                                "The emergency broadcast was activat3d without authorization. "
+                                "There are rumors that the archive has been corrupted. "
+                                "Make sure to check character integrity. "
+                            )
+                            game_state.computer_read = True
+
+                        elif interaction["type"] == "keypad":
+                            keypad_puzzle.open()  
+
+                        else:
+                            tilemap.interact(player)
 
         # Handle mouse click events when the power puzzle is active
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -214,23 +233,10 @@ while running:
         and not keypad_puzzle.active
     ):
         draw_interaction_prompt(screen, camera, interaction["rect"], interaction["message"])
-    
-    # Update objectives based on game state
-    if current_level == 1 and tilemap.power_on and objectives.current_index == 0:
-        objectives.advance()
-    
-    # Update objectives based on game state for level 2
-    if current_level == 2:
-        if objectives.current_index == 2:
-            objectives.advance()
-        
-        if log_viewer.has_read_log and objectives.current_index == 3:
-            objectives.advance()
-
 
     # Render the current objective text on the screen
     objective_text = objective_font.render(
-        "OBJECTIVE: " + objectives.get_current_objective(),
+        "OBJECTIVE: " + objectives.get_current_objective(game_state),
         True, 
         (220, 220, 220)
     )
@@ -248,7 +254,8 @@ while running:
         and not power_puzzle.active
         and not tilemap.power_on
     ):
-        tilemap.activate_terminal(player)
+        if tilemap.activate_terminal(player):
+            game_state.power_restored = True
 
     # Update the power puzzle state
     power_puzzle.update()
@@ -262,11 +269,11 @@ while running:
         current_level += 1
         load_level(current_level)
 
-        if current_level == 2 and objectives.current_index == 1:
-            objectives.advance()
-
-        if current_level == 3 and objectives.current_index == 4:
-            objectives.advance()
+        if current_level == 2:
+            game_state.control_room_entered = True
+        
+        elif current_level == 3:
+            game_state.containment_entered = True
 
         print(f"Loaded Level {current_level}")
 
@@ -278,7 +285,18 @@ while running:
     ):
         if tilemap.unlock_security_door():
             security_door_unlocked = True
+            game_state.security_unlocked = True
             print("Security door unlocked!")
+
+    if current_level == 3:
+        switch = tilemap.get_nearby_shutdown_switch(player)
+
+        if switch is not None:
+            print("Player is standing on the shutdown switch")
+
+        final_terminal = tilemap.get_nearby_final_terminal(player)
+        if final_terminal is not None:
+            print("FINAL TERMINAL DETECTED")
 
     if security_alert_start is not None:
         elapsed = pygame.time.get_ticks() - security_alert_start
