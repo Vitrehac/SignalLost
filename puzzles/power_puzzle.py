@@ -1,3 +1,4 @@
+from pathlib import Path
 import pygame
 
 
@@ -65,7 +66,8 @@ class PowerPuzzle:
         start_y = panel.centery - grid_height // 2
 
         # Draw labels for the source and output tiles
-        label_font = pygame.font.Font(None, 22)
+        FONT_DIR = Path(__file__).parent.parent / "Plus_Jakarta_Sans" / "static"
+        label_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 22)
 
         # Draw the SOURCE and OUTPUT labels with different colors
         source_text = label_font.render("SOURCE >", True, (80, 220, 160))
@@ -82,7 +84,7 @@ class PowerPuzzle:
         screen.blit(output_text, output_text.get_rect(midleft=output_pos))
 
         # Draw the instruction text above the grid
-        instruction_font = pygame.font.Font(None, 24)
+        instruction_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 20)
         instruction = instruction_font.render("Click tiles to rotate. Connect SOURCE to OUTPUT.", True, (210, 210, 210))
 
         # Calculate the position of the instruction text above the panel

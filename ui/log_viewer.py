@@ -1,3 +1,4 @@
+from pathlib import Path
 import pygame
 
 
@@ -46,9 +47,10 @@ class LogViewer:
         pygame.draw.rect(screen, (20, 30, 35), panel, border_radius=8)
         pygame.draw.rect(screen, (70, 180, 150), panel, 2, border_radius=8)
 
-        # Draw the title and the log message on the panel
-        title_font = pygame.font.Font(None, 36)
-        body_font = pygame.font.Font(None, 26)
+        # Fonts
+        FONT_DIR = Path(__file__).resolve().parent.parent / "Plus_Jakarta_Sans" / "static"
+        title_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Regular.ttf"), 30)
+        body_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 20)
 
         title = title_font.render("FACILITY ARCHIVE", True, (80, 230, 170))
         screen.blit(title, (panel.x + 30, panel.y + 30))

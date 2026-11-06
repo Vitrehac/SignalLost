@@ -1,3 +1,4 @@
+from pathlib import Path
 import pygame
 
 
@@ -14,8 +15,11 @@ class EndingScreen:
 
         width, height = screen.get_size()
         screen.fill((8, 12, 20))
-        title_font = pygame.font.Font(None, 64)
-        text_font = pygame.font.Font(None, 30)
+
+        # Initialize fonts
+        FONT_DIR = Path(__file__). parent.parent / "Plus_Jakarta_Sans" / "static"
+        title_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 48)
+        text_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Regular.ttf"), 24)
 
         lines = [
             "CONTAINMENT ARCHIVE HAS BEEN RECOVERED",

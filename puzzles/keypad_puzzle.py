@@ -1,3 +1,4 @@
+from pathlib import Path
 import pygame
 
 
@@ -70,10 +71,11 @@ class KeypadPuzzle:
         pygame.draw.rect(screen, (25, 35, 45), panel, border_radius=8)
         pygame.draw.rect(screen, (200, 160, 60), panel, 2, border_radius=8)
 
-        # Title
-        title_font = pygame.font.Font(None, 34)
-        code_font = pygame.font.Font(None, 54)
-        small_font = pygame.font.Font(None, 25)
+        # Fonts
+        FONT_DIR = Path(__file__).parent.parent / "Plus_Jakarta_Sans" / "static"
+        title_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Regular.ttf"), 30)
+        code_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 50)
+        small_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Regular.ttf"), 20)
         title = title_font.render("SECURITY ACCESS", True, (230, 190, 90))
         screen.blit(title, title.get_rect(centerx=panel.centerx, y=panel.y + 30))
 

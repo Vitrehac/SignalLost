@@ -1,6 +1,7 @@
 import pygame
 from levels.tilemap import TileMap
 from entities.player import Player
+from pathlib import Path
 from puzzles.keypad_puzzle import KeypadPuzzle
 from puzzles.power_puzzle import PowerPuzzle
 from systems.camera import Camera
@@ -20,10 +21,10 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(TITLE)
 
 # Initialize font
-interaction_font = pygame.font.Font(None, 28)
+FONT_DIR = Path(__file__).parent / "Plus_Jakarta_Sans" / "static"
 
-# Initialize the objective font
-objective_font = pygame.font.Font(None, 30)
+interaction_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Regular.ttf"), 22)
+objective_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 24)
 
 # Initialize the log viewer
 log_viewer = LogViewer([])
@@ -320,7 +321,8 @@ while running:
         elapsed = pygame.time.get_ticks() - security_alert_start
 
         if elapsed < security_alert_duration:
-            alert_font = pygame.font.Font(None, 48)
+            FONT_DIR = Path(__file__).resolve().parent / "Plus_Jakarta_Sans" / "static"
+            alert_font = pygame.font.Font(str(FONT_DIR / "PlusJakartaSans-Bold.ttf"), 26)
 
             alert_text = alert_font.render(
                 "SECURITY BREACH - RETURNED TO CHECKPOINT",
