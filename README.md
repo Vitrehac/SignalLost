@@ -8,23 +8,23 @@ The game is a short, story driven experience featuring 3 connected levels.
 3. Containment sector: Navigate through dangerous security lasers and disable the emergency defense system.
 
 ## Controls
-**Move** `W / S / A / D / Arrows`
-**Interact with objects:** `E`
-**Rotate circuit tiles:** `Mouse buttons`
-**Enter keypad codes:** `Number keys`
-**Delete keypad input:** `Backspace` 
-**Submit keypad code:** `Enter`
-**Close puzzles / ending screen:** `Esc`
+**Move** `W / S / A / D / Arrows`  
+**Interact with objects:** `E`  
+**Rotate circuit tiles:** `Mouse buttons`  
+**Enter keypad codes:** `Number keys`  
+**Delete keypad input:** `Backspace`  
+**Submit keypad code:** `Enter`  
+**Close puzzles / ending screen:** `Esc`  
 
 ## Installation
-Clone the repository:
+Clone the repository:  
 `git clone https://github.com/Vitrehac/SignalLost.git`
 `cd SignalLost`
 
-Install Pygame:
+Install Pygame:  
 `python -m pip install pygame`
 
-Run the game:
+Run the game:  
 `python main.py`
 
 ## Technologies
