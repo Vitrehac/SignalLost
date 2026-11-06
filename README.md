@@ -18,7 +18,7 @@ The game is a short, story driven experience featuring 3 connected levels.
 
 ## Installation
 Clone the repository:  
-`git clone https://github.com/Vitrehac/SignalLost.git`
+`git clone https://github.com/Vitrehac/SignalLost.git`  
 `cd SignalLost`
 
 Install Pygame:  
@@ -36,30 +36,29 @@ Run the game:
 ## Project structure
 
 
-SignalLost/
-├── entities/
-|   └── player.py
-├── levels/
-|   ├── maps/
-|   |   ├── level1.txt
-|   |   ├── level2.txt
-|   |   └── level3.txt
-|   └── tilemap.py
-├── puzzles/
-|   ├── keypad_puzzle.py
-|   └── power_puzzle.py
-|   
-├── systems/
-|   ├── camera.py
-|   ├── collision.py
-|   ├── game_state.py
-|   └── objectives.py
-├── ui/
-|   ├── ending_screen.py
-|   └── log_viewer.py
-└── main.py
+SignalLost/  
+├── entities/  
+|   └── player.py  
+├── levels/  
+|   ├── maps/  
+|   |   ├── level1.txt  
+|   |   ├── level2.txt  
+|   |   └── level3.txt  
+|   └── tilemap.py  
+├── puzzles/  
+|   ├── keypad_puzzle.py  
+|   └── power_puzzle.py       
+├── systems/  
+|   ├── camera.py  
+|   ├── collision.py  
+|   ├── game_state.py  
+|   └── objectives.py  
+├── ui/  
+|   ├── ending_screen.py  
+|   └── log_viewer.py  
+└── main.py  
 
 ## Development & AI Usage
-SignalLost was developed to practice Python and learn game development (pygame) and was built as part of my Hack Club's Phantom participation.
+SignalLost was developed to practice Python and learn game development (pygame) and was built as part of my Hack Club's Phantom participation.  
 AI was used during development for explanations and sometimes debugging. Development mostly involved manually writing the code and testing game functionality.
 
