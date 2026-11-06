@@ -177,8 +177,17 @@ class TileMap:
         return True
 
     def get_nearby_interaction(self, player):
-        
+        # Check for emergency shutdown switch
+        switch = self.get_nearby_shutdown_switch(player)
+
+        if switch is not None:
+            return{
+                "type": "shutdown_switch",
+                "rect": switch,
+                "message": "E Disable security lasers"
+            }
         interaction_range = 80
+
         # Check for nearby terminal first, then check for nearby door
         terminal = self.get_nearby_terminal(player)
         final_terminal = self.get_nearby_final_terminal(player)

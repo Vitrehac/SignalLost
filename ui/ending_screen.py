@@ -20,11 +20,7 @@ class EndingScreen:
         lines = [
             "CONTAINMENT ARCHIVE HAS BEEN RECOVERED",
             "",
-            "The blackout wasn't an accident",
-            "",
-            "The emergency signal is still transmitting.",
-            "",
-            "SIGNAL LOST",
+            "THANKS FOR PLAYING SIGNAL LOST",
             "",
             "Press ESC to exit"
         ]

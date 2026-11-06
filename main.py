@@ -329,7 +329,7 @@ while running:
             )
 
             alert_rect = alert_text.get_rect(
-                center=(SCREEN_WIDTH // 2, 100)
+                midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 30)
             )
 
             screen.blit(alert_text, alert_rect)
