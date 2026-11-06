@@ -35,7 +35,7 @@ Run the game:
 
 ## Project structure
 
-
+```text
 SignalLost/  
 ├── entities/  
 |   └── player.py  
@@ -57,6 +57,7 @@ SignalLost/
 |   ├── ending_screen.py  
 |   └── log_viewer.py  
 └── main.py  
+```
 
 ## Development & AI Usage
 SignalLost was developed to practice Python and learn game development (pygame) and was built as part of my Hack Club's Phantom participation.  
