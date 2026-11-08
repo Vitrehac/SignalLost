@@ -22,11 +22,6 @@ Download the latest Windows version from:
 [(https://github.com/Vitrehac/SignalLost/releases/latest)]
 ```
 
-Install Pygame:  
-`python -m pip install pygame`
-
-Run the game:  
-`python main.py`
 
 ## Technologies
 - Python
