@@ -19,7 +19,7 @@ The game is a short, story driven experience featuring 3 connected levels.
 ## Installation
 Download the latest Windows version from:  
 ```text  
-[(https://github.com/Vitrehac/SignalLost/releases/latest)]
+[GitHub Release](https://github.com/Vitrehac/SignalLost/releases/latest)
 ```
 
 
