@@ -17,11 +17,10 @@ The game is a short, story driven experience featuring 3 connected levels.
 **Close puzzles / ending screen:** `Esc`  
 
 ## Installation
-Download the latest Windows version from:  
-```text  
-[GitHub Release](https://github.com/Vitrehac/SignalLost/releases/latest)
-```
+Download the latest Windows version from:
+[GitHub Releases](https://github.com/Vitrehac/SignalLost/releases/latest).  
 
+Extract the zip file and launch `SignalLost.exe`. No Python installation required.
 
 ## Technologies
 - Python
