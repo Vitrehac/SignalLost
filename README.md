@@ -17,9 +17,10 @@ The game is a short, story driven experience featuring 3 connected levels.
 **Close puzzles / ending screen:** `Esc`  
 
 ## Installation
-Clone the repository:  
-`git clone https://github.com/Vitrehac/SignalLost.git`  
-`cd SignalLost`
+Download the latest Windows version from:  
+```text  
+[(https://github.com/Vitrehac/SignalLost/releases/latest)]
+```
 
 Install Pygame:  
 `python -m pip install pygame`
@@ -36,27 +37,57 @@ Run the game:
 ## Project structure
 
 ```text
-SignalLost/  
-├── entities/  
-|   └── player.py  
-├── levels/  
-|   ├── maps/  
-|   |   ├── level1.txt  
-|   |   ├── level2.txt  
-|   |   └── level3.txt  
-|   └── tilemap.py  
-├── puzzles/  
-|   ├── keypad_puzzle.py  
-|   └── power_puzzle.py       
-├── systems/  
-|   ├── camera.py  
-|   ├── collision.py  
-|   ├── game_state.py  
-|   └── objectives.py  
-├── ui/  
-|   ├── ending_screen.py  
-|   └── log_viewer.py  
-└── main.py  
+|-- .gitignore
+|-- assets
+|   |-- fonts
+|   |-- sounds
+|   |-- sprites
+|-- data
+|-- entities
+|   |-- player.py
+|-- levels
+|   |-- level.py
+|   |-- maps
+|   |   |-- level1.txt
+|   |   |-- level2.txt
+|   |   |-- level3.txt
+|   |-- tilemap.py
+|-- main.py
+|-- Plus_Jakarta_Sans
+|   |-- OFL.txt
+|   |-- PlusJakartaSans-Italic-VariableFont_wght.ttf
+|   |-- PlusJakartaSans-VariableFont_wght.ttf
+|   |-- README.txt
+|   |-- static
+|   |   |-- PlusJakartaSans-Bold.ttf
+|   |   |-- PlusJakartaSans-BoldItalic.ttf
+|   |   |-- PlusJakartaSans-ExtraBold.ttf
+|   |   |-- PlusJakartaSans-ExtraBoldItalic.ttf
+|   |   |-- PlusJakartaSans-ExtraLight.ttf
+|   |   |-- PlusJakartaSans-ExtraLightItalic.ttf
+|   |   |-- PlusJakartaSans-Italic.ttf
+|   |   |-- PlusJakartaSans-Light.ttf
+|   |   |-- PlusJakartaSans-LightItalic.ttf
+|   |   |-- PlusJakartaSans-Medium.ttf
+|   |   |-- PlusJakartaSans-MediumItalic.ttf
+|   |   |-- PlusJakartaSans-Regular.ttf
+|   |   |-- PlusJakartaSans-SemiBold.ttf
+|   |   |-- PlusJakartaSans-SemiBoldItalic.ttf
+|-- puzzles
+|   |-- __init__.py
+|   |-- keypad_puzzle.py
+|   |-- power_puzzle.py
+|-- README.md
+|-- requirements.txt
+|-- settings.py
+|-- systems
+|   |-- camera.py
+|   |-- collision.py
+|   |-- game_state.py
+|   |-- objectives.py
+|-- ui
+|   |-- ending_screen.py
+|   |-- log_viewer.py
 ```
 
 ## Development & AI Usage
